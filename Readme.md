@@ -1,3 +1,6 @@
+# 添加了SSH端口的设置
+避免一些刚部署好的服务器朋友在使用此脚本后，启动防火墙了却没有放行SSH端口的尴尬。
+
 ![Shadowsocks](https://github.com/teddysun/shadowsocks_install/raw/master/shadowsocks.png)
 # Auto install Shadowsocks Server
 
