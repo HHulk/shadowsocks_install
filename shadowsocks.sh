@@ -191,6 +191,28 @@ pre_install(){
     echo -e "[${red}Error${plain}] Please enter a correct number [1-65535]"
     done
 
+    # Set SSH server config port
+    while true
+    do
+    dport="22"
+    echo "Please enter a port for SSH server [1-65535],this script will start your firewalld, this step to permit the ssh port"
+    read -p "(Default SSH port: ${dport}):" SSH_port
+    [ -z "$SSH_port" ] && SSH_port=${dport}
+    expr ${SSH_port} + 1 &>/dev/null
+    if [ $? -eq 0 ]; then
+        if [ ${SSH_port} -ge 1 ] && [ ${SSH_port} -le 65535 ] && [ ${SSH_port:0:1} != 0 ]; then 
+            echo
+            echo "---------------------------"
+            echo "SSH port = ${SSH_port} "
+            echo "---------------------------"
+            echo
+            break
+        fi
+    fi
+    echo -e "[${red}Error${plain}] Please enter a correct number [1-65535]"
+    done
+
+
     # Set shadowsocks config stream ciphers
     while true
     do
@@ -284,10 +306,12 @@ firewall_set(){
             if [ $? -ne 0 ]; then
                 iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport ${shadowsocksport} -j ACCEPT
                 iptables -I INPUT -m state --state NEW -m udp -p udp --dport ${shadowsocksport} -j ACCEPT
+                iptables -I INPUT -m state --state NEW -m udp -p tcp --dport ${SSH_port} -j ACCEPT
                 /etc/init.d/iptables save
                 /etc/init.d/iptables restart
             else
                 echo -e "[${green}Info${plain}] port ${shadowsocksport} has already been set up."
+                echo -e "[${green}Info${plain}] SSH port ${SSH_port} has already been set up."
             fi
         else
             echo -e "[${yellow}Warning${plain}] iptables looks like shutdown or not installed, please manually set it if necessary."
